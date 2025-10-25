@@ -8,18 +8,23 @@ from tqdm import tqdm
 
 training_labels = 'C:/Users/admin/Documents/3rd Year project/OpenMV/PCB_DATASET/Train Valid Test/train/labels'
 main_dict = {}
-files_keys = ['filename', 'category', 'label', 'boundingBoxes']
+files_keys = ['path', 'category', 'label', 'boundingBoxes']
 
 main_dict['version'] = 1
 main_dict['files'] = []
 
-boundingBox_info_list = ['ID', 'x', 'y', 'width', 'height']
+boundingBox_info_list = ['label', 'x', 'y', 'width', 'height']
 
 for file in os.scandir(training_labels):
     if file.is_file():
 
         new_intra_files_dict = dict.fromkeys(files_keys) # remember to append this to the main_dict['files'] list --> **DONE**
-        new_intra_files_dict['filename'] = os.path.basename(file)
+
+        root = os.path.splitext(file.name)[0]
+       
+
+        new_intra_files_dict['path'] = "l_" + f"{root}" + ".jpg"     
+        
         new_intra_files_dict['category'] = "Training" # change for testing & validating
         new_intra_files_dict['label'] = {} # read each txt file and return the id -> that will be the label, e.g. mouse_bite
         new_intra_files_dict['boundingBoxes'] = [] 
@@ -36,7 +41,7 @@ for file in os.scandir(training_labels):
                 
                 id, x, y, w, h = line.strip().split()
                 boundingBox_dict = {
-                    "ID" : None,
+                    "label" : None,
                     "x" : float(x),
                     "y" : float(y),
                     "width" : float(w),
@@ -52,11 +57,16 @@ for file in os.scandir(training_labels):
                     "5": "spurious_copper"
                 }
 
-                boundingBox_dict["ID"] = id_map.get(id, "Unknown") #return "Unknown" if id not found
+                boundingBox_dict["label"] = id_map.get(id, "Unknown") #return "Unknown" if id not found
                 time.sleep(0.005)
 
                 new_intra_files_dict['boundingBoxes'].append(boundingBox_dict)
                 main_dict['files'].append(new_intra_files_dict)
-                
-                pretty_print = json.dumps(main_dict, indent = 4)
-                print(pretty_print)
+
+with open("train_labels.json", "w") as out_train:
+    json.dump(main_dict, out_train, indent = 4)
+
+
+
+
+
