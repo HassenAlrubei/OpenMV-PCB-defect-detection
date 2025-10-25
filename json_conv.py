@@ -33,32 +33,30 @@ for file in os.scandir(training_labels):
         with open(file) as fh:
             for line in fh:
 
-                boundingBox_dict = {}
-                info = list(line.strip().split())
                 
+                id, x, y, w, h = line.strip().split()
+                boundingBox_dict = {
+                    "ID" : None,
+                    "x" : float(x),
+                    "y" : float(y),
+                    "width" : float(w),
+                    "height" : float(h)
+                    }
+                
+                id_map = {
+                    "0": "mouse_bite",
+                    "1": "Spur",
+                    "2": "missing_hole",
+                    "3": "short_circuit",
+                    "4": "open_circuit",
+                    "5": "spurious_copper"
+                }
 
-                for i, j in zip(boundingBox_info_list, info):
-                    boundingBox_dict.update({i: j})
-
-                    if (info[0] == '0'):
-                        boundingBox_dict['ID'] = "Mouse_Bite"
-                    elif (info[0] == '1'):
-                        boundingBox_dict['ID'] = "Spur"
-                    elif (info[0] == '2'):
-                        boundingBox_dict['ID'] = "Missing_Hole"
-                    elif (info[0] == '3'):
-                        boundingBox_dict['ID'] = "Short_Circuit"
-                    elif (info[0] == '4'):
-                        boundingBox_dict['ID'] = "Open_Ciruit"
-                    elif (info[0] == '5'):
-                        boundingBox_dict['ID'] = "Spurious_Copper"
-
-                    
-                    time.sleep(0.005)
+                boundingBox_dict["ID"] = id_map.get(id, "Unknown") #return "Unknown" if id not found
+                time.sleep(0.005)
 
                 new_intra_files_dict['boundingBoxes'].append(boundingBox_dict)
-
-                pretty_data = json.dumps(new_intra_files_dict, indent = 4)
-                main_dict['files'].append(pretty_data)
+                main_dict['files'].append(new_intra_files_dict)
                 
-                pprint.pp(main_dict)
+                pretty_print = json.dumps(main_dict, indent = 4)
+                print(pretty_print)
